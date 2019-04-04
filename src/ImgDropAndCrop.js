@@ -21,8 +21,10 @@ class ImgDropAndCrop extends Component {
   constructor(props) {
     super(props);
     this.imagePreviewCanvasRef = React.createRef();
+    // this.fileInputRef = React.createRef();
     this.state = {
       imgSrc: null,
+      imgSrcExt: null,
       crop: {
         aspect: 1 / 1
       }
@@ -63,8 +65,10 @@ class ImgDropAndCrop extends Component {
           "load",
           () => {
             // console.log(myFileReader.result);
+            const myResult = myFileReader.result;
             this.setState({
-              imgSrc: myFileReader.result
+              imgSrc: myResult,
+              imgSrcExt: extractImageFileExtensionFromBase64(myResult)
             });
           },
           false
@@ -91,26 +95,78 @@ class ImgDropAndCrop extends Component {
 
   handleDownloadClick = e => {
     e.preventDefault();
-    const canvasRef = this.imagePreviewCanvasRef.current;
-    // console.log("this.imagePreviewCanvasRef: ", this.imagePreviewCanvasRef);
     const { imgSrc } = this.state;
-    const fileExtension = extractImageFileExtensionFromBase64(imgSrc);
-    const imgSrcNew = canvasRef.toDataURL("image/" + fileExtension);
-    const filename = "previewFile." + fileExtension;
+    if (imgSrc) {
+      const canvasRef = this.imagePreviewCanvasRef.current;
+      // console.log("this.imagePreviewCanvasRef: ", this.imagePreviewCanvasRef);
+      const { imgSrcExt } = this.state;
+      const imgSrcNew = canvasRef.toDataURL("image/" + imgSrcExt);
+      const filename = "previewFile." + imgSrcExt;
 
-    //file to be uploaded
-    const myNewCroppedFile = base64StringtoFile(imgSrcNew, filename);
-    console.log("myNewCroppedFile: ", myNewCroppedFile);
+      //file to be uploaded
+      const myNewCroppedFile = base64StringtoFile(imgSrcNew, filename);
+      console.log("myNewCroppedFile: ", myNewCroppedFile);
 
-    //download file
-    downloadBase64File(imgSrcNew, filename);
+      //download file
+      downloadBase64File(imgSrcNew, filename);
+      this.handleClearToDefault();
+    }
   };
 
+  handleClearToDefault = event => {
+    if (event) event.preventDefault();
+    const canvas = this.imagePreviewCanvasRef.current;
+    const ctx = canvas.getContext("2d");
+    console.log("ctx: ", ctx);
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    this.setState({
+      // imgSrc: null,
+      imgSrcExt: null,
+      crop: {
+        aspect: 1 / 1
+      }
+    });
+  };
+
+  // handleFileSelect = e => {
+  //   console.log(e);
+  //   const files = e.target;
+  //   if (files && files.length > 0) {
+  //     const isVerified = this.verifyFile(files);
+  //     if (isVerified) {
+  //       //imageBase64Data
+  //       const currentFile = files[0];
+  //       const myFileReader = new FileReader();
+  //       myFileReader.addEventListener(
+  //         "load",
+  //         () => {
+  //           // console.log(myFileReader.result);
+  //           const myResult = myFileReader.result;
+  //           this.setState({
+  //             imgSrc: myResult,
+  //             imgSrcExt: extractImageFileExtensionFromBase64(myResult)
+  //           });
+  //         },
+  //         false
+  //       );
+  //       myFileReader.readAsDataURL(currentFile);
+  //     }
+  //   }
+  // };
   render() {
     const { imgSrc } = this.state;
     return (
       <div>
         <h1>Drop and Crop</h1>
+        {/* <input
+          ref={this.fileInputRef}
+          type="file"
+          multiple={false}
+          accept={acceptedFiletypes}
+          onChange={this.handleFileSelect}
+        /> */}
         {imgSrc !== null ? (
           <div>
             {/* {imgSrc}
@@ -127,6 +183,7 @@ class ImgDropAndCrop extends Component {
             <p> Preview Canvas Crop</p>
             <canvas ref={this.imagePreviewCanvasRef} />
             <button onClick={this.handleDownloadClick}> Download</button>
+            <button onClick={this.handleClearToDefault}>Clear</button>
           </div>
         ) : (
           <Dropzone
