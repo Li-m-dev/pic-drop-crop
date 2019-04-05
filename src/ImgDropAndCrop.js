@@ -21,7 +21,7 @@ class ImgDropAndCrop extends Component {
   constructor(props) {
     super(props);
     this.imagePreviewCanvasRef = React.createRef();
-    // this.fileInputRef = React.createRef();
+    this.fileInputRef = React.createRef();
     this.state = {
       imgSrc: null,
       imgSrcExt: null,
@@ -130,47 +130,47 @@ class ImgDropAndCrop extends Component {
     });
   };
 
-  // handleFileSelect = e => {
-  //   console.log(e);
-  //   const files = e.target;
-  //   if (files && files.length > 0) {
-  //     const isVerified = this.verifyFile(files);
-  //     if (isVerified) {
-  //       //imageBase64Data
-  //       const currentFile = files[0];
-  //       const myFileReader = new FileReader();
-  //       myFileReader.addEventListener(
-  //         "load",
-  //         () => {
-  //           // console.log(myFileReader.result);
-  //           const myResult = myFileReader.result;
-  //           this.setState({
-  //             imgSrc: myResult,
-  //             imgSrcExt: extractImageFileExtensionFromBase64(myResult)
-  //           });
-  //         },
-  //         false
-  //       );
-  //       myFileReader.readAsDataURL(currentFile);
-  //     }
-  //   }
-  // };
+  handleFileSelect = e => {
+    console.log(e);
+    const files = e.target;
+    if (files && files.length > 0) {
+      const isVerified = this.verifyFile(files);
+      if (isVerified) {
+        //imageBase64Data
+        const currentFile = files[0];
+        const myFileReader = new FileReader();
+        myFileReader.addEventListener(
+          "load",
+          () => {
+            // console.log(myFileReader.result);
+            const myResult = myFileReader.result;
+            this.setState({
+              imgSrc: myResult,
+              imgSrcExt: extractImageFileExtensionFromBase64(myResult)
+            });
+          },
+          false
+        );
+        myFileReader.readAsDataURL(currentFile);
+      }
+    }
+  };
   render() {
     const { imgSrc } = this.state;
     return (
       <div>
         <h1>Drop and Crop</h1>
-        {/* <input
+        <input
           ref={this.fileInputRef}
           type="file"
           multiple={false}
           accept={acceptedFiletypes}
           onChange={this.handleFileSelect}
-        /> */}
+        />
         {imgSrc !== null ? (
           <div>
-            {/* {imgSrc}
-            <img src={imgSrc} alt="previewImg" /> */}
+            {imgSrc}
+            <img src={imgSrc} alt="previewImg" />
             <ReactCrop
               src={imgSrc}
               crop={this.state.crop}
